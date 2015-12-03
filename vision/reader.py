@@ -48,7 +48,10 @@ ops  = {
 }
 
 def monetize(value):
-    return decimal.Decimal(value).quantize(CENTS, decimal.ROUND_05UP)
+    try:
+        return decimal.Decimal(value).quantize(CENTS, decimal.ROUND_05UP)
+    except:
+        return decimal.Decimal("0.00")
 
 ##########################################################################
 ## Account Data Structure
@@ -68,7 +71,7 @@ class FinanceSheet(object):
         """
         Handles the acount and adds it to the accounts list.
         """
-        if not isinstance(account['Ending Balance'], float):
+        if isinstance(account['Ending Balance'], basestring):
             fn = xlfn.match(account['Ending Balance'])
             if fn is not None:
                 mods = opfn.findall(fn.groups()[0])
@@ -78,9 +81,22 @@ class FinanceSheet(object):
                     op   = ops[mod[0]]
                     cell = mod[1:]
 
-                    bal = op(bal, ws[cell].value)
+                    try:
+                        bal = op(bal, ws[cell].value)
+                    except:
+                        bal = "0.00"
 
                 account['Ending Balance'] = bal
+
+            elif account['Ending Balance'].startswith('='):
+                ## TODO: Perform this computation!
+                cell = account['Ending Balance'][1:]
+                account['Ending Balance'] = ws[cell].value
+
+                account['Ending Balance'] = "0.00"
+
+            else:
+                raise ValueError("Unknown ending balance: {!r}".format(account['Ending Balance']))
 
         # Convert beginning and ending balance to decimals
         account['Beginning Balance'] = monetize(account['Beginning Balance'])
@@ -92,6 +108,10 @@ class FinanceSheet(object):
         Handles the transaction and adds it to the transactions list.
         """
         transaction['Date'] = transaction['Date'].date()
+
+        if isinstance(transaction['Amount'], basestring) and transaction['Amount'].startswith("="):
+            transaction['Amount'] = eval(transaction['Amount'][1:])
+
         transaction['Amount'] = monetize(transaction['Amount'])
         self.transactions.append(transaction)
 
@@ -169,12 +189,12 @@ class SpreadsheetReader(object):
 
             elif phase == TRANSACTIONS:
 
-                if isinstance(row[0], datetime):
+                if len(row) == 4 and isinstance(row[0], datetime):
                     sheet.add_transaction(dict(zip(fields, row)))
-                elif row[0].lower() == "date":
+                elif len(row) == 4 and row[0].lower() == "date":
                     fields = row
                 else:
-                    raise ValueError("Unknown TRANSACTION row: {!r}".format(row))
+                    print "Unknown TRANSACTION row: {!r}".format(row)
 
             else:
                 raise Exception("Unknown phase, bad handling!")

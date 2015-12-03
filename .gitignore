@@ -58,4 +58,5 @@ docs/_build/
 target/
 
 # Any Financial Excel Files
-*.xlsx
+fixtures/*.xlsx
+fixtures/*.csv
