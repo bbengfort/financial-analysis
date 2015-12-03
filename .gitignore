@@ -60,3 +60,5 @@ target/
 # Any Financial Excel Files
 fixtures/*.xlsx
 fixtures/*.csv
+
+.ipynb_checkpoints
