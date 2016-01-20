@@ -1,4 +1,4 @@
-# extract
+# vision.extract
 # Extracts financial information from Finances.xlsx and writes them to CSVs.
 #
 # Author:   Benjamin Bengfort <bengfort@cs.umd.edu>
@@ -27,7 +27,7 @@ from vision.reader import SpreadsheetReader
 ## Module Constants
 ##########################################################################
 
-PROJECT  = os.path.dirname(__file__)
+PROJECT  = os.path.dirname(os.path.dirname(__file__))
 FINANCES = os.path.join(PROJECT, "fixtures", "Finances.xlsx")
 ACCOUNTS = os.path.join(PROJECT, "fixtures", "accounts.csv")
 TRANSACT = os.path.join(PROJECT, "fixtures", "transactions.csv")

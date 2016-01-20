@@ -62,3 +62,4 @@ fixtures/*.xlsx
 fixtures/*.csv
 
 .ipynb_checkpoints
+.env
